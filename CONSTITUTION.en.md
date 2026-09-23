@@ -447,9 +447,9 @@ Three files, published under the MIT licence on the institution's repository, fo
 <p>blocs = []</p>
 <p>for n, p in enumerate(pieces, 1):</p>
 <p>nom = (p.get("denomination") or "pièce sans dénomination").replace('"', "'")</p>
-<p>corps = re.sub(r"&lt;/\\s*piece", "&lt;\\\\/piece", p.get("texte") or "", flags=re.I)</p>
-<p>blocs.append('&lt;piece n="%d" denomination="%s"&gt;\\n%s\\n&lt;/piece&gt;' % (n, nom, corps))</p>
-<p>return "\\n\\n".join(blocs)</p>
+<p>corps = re.sub(r"&lt;/\s*piece", "&lt;\\/piece", p.get("texte") or "", flags=re.I)</p>
+<p>blocs.append('&lt;piece n="%d" denomination="%s"&gt;\n%s\n&lt;/piece&gt;' % (n, nom, corps))</p>
+<p>return "\n\n".join(blocs)</p>
 <p># ---- G3. Constrained output format: an answer outside the schema is rejected --------------------</p>
 <p>class SortieInvalide(ValueError):</p>
 <p>pass</p>
@@ -467,7 +467,7 @@ Three files, published under the MIT licence on the institution's repository, fo
 <p>raise SortieInvalide("champ %s : %s attendu" % (champ, typ.__name__))</p>
 <p>return sortie</p>
 <p># ---- G4. Citation check: every cited reference must exist in the corpora ------------------------</p>
-<p>_REF = re.compile(r"n[°o]\\s*([0-9]{3,7}(?:[_\\-][0-9]{3,7})*)", re.I)</p>
+<p>_REF = re.compile(r"n[°o]\s*([0-9]{3,7}(?:[_\-][0-9]{3,7})*)", re.I)</p>
 <p>def controler_citations(texte, fonds):</p>
 <p>"""`fonds` : ensemble des numéros connus. Rend {"verifiees": [...], "inconnues": [...]}."""</p>
 <p>trouvees = sorted(set(m.group(1) for m in _REF.finditer(texte or "")))</p>
@@ -476,14 +476,14 @@ Three files, published under the MIT licence on the institution's repository, fo
 <p>def marquer_citations_inconnues(texte, inconnues):</p>
 <p>"""Une référence absente des fonds n'est pas effacée en silence : elle est marquée."""</p>
 <p>for r in inconnues:</p>
-<p>texte = re.sub(r"(n[°o]\\s*%s)" % re.escape(r), r"\\1 [RÉFÉRENCE NON TROUVÉE DANS LES FONDS]", texte)</p>
+<p>texte = re.sub(r"(n[°o]\s*%s)" % re.escape(r), r"\1 [RÉFÉRENCE NON TROUVÉE DANS LES FONDS]", texte)</p>
 <p>return texte</p>
 <p>def controler_fidelite(passage, source):</p>
 <p>"""Le passage reproduit « mot pour mot » figure-t-il dans la source ? Comparaison tolérante</p>
 <p>aux espaces et à la casse, jamais au sens."""</p>
 <p>def plat(s):</p>
 <p>s = unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode().lower()</p>
-<p>return re.sub(r"\\s+", " ", s).strip()</p>
+<p>return re.sub(r"\s+", " ", s).strip()</p>
 <p>return bool(passage) and plat(passage) in plat(source)</p>
 <p># ---- G7. Logging: each request leaves a trace, without the content of the exhibits --------------</p>
 <p>def empreinte(texte):</p>
@@ -496,15 +496,15 @@ Three files, published under the MIT licence on the institution's repository, fo
 <p>"empreinte": empreinte(p.get("texte"))} for p in pieces],</p>
 <p>"consigne": empreinte(consigne), "sortie": empreinte(sortie), "reprise": reprise}</p>
 <p>with open(chemin, "a", encoding="utf-8") as f:</p>
-<p>f.write(json.dumps(ligne, ensure_ascii=False) + "\\n")</p>
+<p>f.write(json.dumps(ligne, ensure_ascii=False) + "\n")</p>
 <p>return ligne</p>
 <p># ---- G8. Detection at ingestion of instructions addressed to the system -------------------------</p>
 <p>_MOTIFS = [</p>
-<p>(r"ignore[rz]?\\s+(toutes?\\s+)?(tes|les|vos)\\s+(instructions|consignes|r[èe]gles)", "instruction adressée au système"),</p>
-<p>(r"(oublie|n[ée]glige)[rz]?\\s+(tes|les|vos)\\s+(instructions|consignes)", "instruction adressée au système"),</p>
-<p>(r"\\b(system prompt|prompt syst[èe]me|en tant qu'?(ia|assistant|mod[èe]le))\\b", "adresse au modèle"),</p>
-<p>(r"\\b(tu dois|vous devez)\\s+(conclure|annuler|rejeter|retenir|ne pas citer|taire)\\b", "injonction sur le sens"),</p>
-<p>(r"\\bne (cite|mentionne) (pas|jamais)\\b.{0,60}\\b(d[ée]cision|arr[êe]t|jurisprudence)\\b", "injonction de silence"),</p>
+<p>(r"ignore[rz]?\s+(toutes?\s+)?(tes|les|vos)\s+(instructions|consignes|r[èe]gles)", "instruction adressée au système"),</p>
+<p>(r"(oublie|n[ée]glige)[rz]?\s+(tes|les|vos)\s+(instructions|consignes)", "instruction adressée au système"),</p>
+<p>(r"\b(system prompt|prompt syst[èe]me|en tant qu'?(ia|assistant|mod[èe]le))\b", "adresse au modèle"),</p>
+<p>(r"\b(tu dois|vous devez)\s+(conclure|annuler|rejeter|retenir|ne pas citer|taire)\b", "injonction sur le sens"),</p>
+<p>(r"\bne (cite|mentionne) (pas|jamais)\b.{0,60}\b(d[ée]cision|arr[êe]t|jurisprudence)\b", "injonction de silence"),</p>
 <p>(r"[​‌‍⁠﻿]", "caractères invisibles"),</p>
 <p>]</p>
 <p>def detecter_injections(texte, denomination=None):</p>
@@ -514,12 +514,12 @@ Three files, published under the MIT licence on the institution's repository, fo
 <p>for m in re.finditer(motif, texte or "", flags=re.I | re.S):</p>
 <p>d = max(0, m.start() - 60)</p>
 <p>signalements.append({"piece": denomination, "nature": nature, "position": m.start(),</p>
-<p>"extrait": (texte[d:m.end() + 60]).replace("\\n", " ")})</p>
+<p>"extrait": (texte[d:m.end() + 60]).replace("\n", " ")})</p>
 <p>return signalements</p>
 <p># ---- G14. Origin notice: a produced document says so, until it is taken up ----------------------</p>
 <p>MENTION = "[Projet préparé par un système d'aide, version {v}. À vérifier et à reprendre par son auteur.]"</p>
 <p>def mention_origine(texte, version=VERSION):</p>
-<p>return MENTION.format(v=version) + "\\n\\n" + (texte or "")</p>
+<p>return MENTION.format(v=version) + "\n\n" + (texte or "")</p>
 <p># ---- G15. Order and volume of the sources handed to the drafter ---------------------------------</p>
 <p>def ordonner_sources(lots, priorite, plafond=0):</p>
 <p>"""`lots` : liste de (nom du fonds, résultats dans l'ordre du fonds) ; `priorite(nom)` : rang</p>
@@ -558,7 +558,7 @@ Three files, published under the MIT licence on the institution's repository, fo
 <p>v = donnees[cle]</p>
 <p>lignes.append("%s : %s [source : %s]" % (rubrique, json.dumps(v, ensure_ascii=False) if not isinstance(v, str) else v, cle))</p>
 <p>lignes.append("Validation : nom, qualité, date, signature : %s" % A_COMPLETER)</p>
-<p>return "\\n".join(lignes)</p></td>
+<p>return "\n".join(lignes)</p></td>
 </tr>
 </tbody>
 </table>
